@@ -30,6 +30,22 @@ class ColoTensor(object):
         self._device = device
         self._torch_tensor = torch_tensor
 
+    @property
+    def shape(self):
+        return torch.Size(self._size)
+
+    def size(self, dim=None):
+        if dim is None:
+            return self.shape
+        return self._size[dim]
+
+    def dim(self):
+        return len(self._size)
+
+    def normal_(self, mean=0., std=1.):
+        torch_tensor = self.torch_tensor()
+        return torch_tensor.normal_(mean=mean, std=std)
+
     def numel(self):
         return sum(self._size)
 
