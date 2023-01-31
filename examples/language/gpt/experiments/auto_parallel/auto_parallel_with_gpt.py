@@ -40,7 +40,7 @@ def get_mem_info(prefix=''):
 
 def get_tflops(model_numel, batch_size, seq_len, step_time):
     # Tflops_per_GPU = global_batch * global_numel * seq_len * 8 / #gpu
-    return model_numel * batch_size * seq_len * 8 / 1e12 / (step_time + 1e-12) / 4
+    return model_numel * batch_size * seq_len * 8 / 1e12 / (step_time + 1e-12) / 8
 
 
 # Randomly Generated Data
@@ -66,17 +66,18 @@ def main():
         'attention_mask': torch.zeros((BATCH_SIZE, SEQ_LENGTH), dtype=torch.int64).to('meta'),
     }
 
-    device_mesh = DeviceMesh(physical_mesh_id=torch.arange(4),
-                             mesh_shape=[2, 2],
+    device_mesh = DeviceMesh(physical_mesh_id=torch.arange(8),
+                             mesh_shape=[2, 4],
                              mesh_alpha=[1, 1],
                              mesh_beta=[10, 1],
                              init_process_group=True)
-    gm, solution = initialize_model(model,
-                                    meta_input_sample,
-                                    device_mesh=device_mesh,
-                                    load_solver_solution=True,
-                                    solution_path='./saved_solution/2d_tp/bs16_hidd4096_2d_tp_16_devices_12layer.pt',
-                                    return_solution=True)
+    gm, solution = initialize_model(
+        model,
+        meta_input_sample,
+        device_mesh=device_mesh,
+        load_solver_solution=True,
+        solution_path='./saved_solution/megatron_1d/bs8_hidd4096_megatron_1d_8_devices_12layer_comment_RS.pt',
+        return_solution=True)
 
     # print solution on rank 0
     if gpc.get_global_rank() == 0:

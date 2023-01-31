@@ -1,1 +1,1 @@
-colossalai run --nproc_per_node 8 auto_parallel_with_gpt.py
+colossalai run --nproc_per_node 4 auto_parallel_with_gpt.py
