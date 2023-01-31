@@ -395,8 +395,8 @@ def _module_params_sharding(gm: torch.fx.GraphModule, device_mesh: DeviceMesh):
                         def wrapper(param, comm_spec, stream):
 
                             def hook_fn(grad):
-                                with torch.cuda.stream(stream):
-                                    _all_reduce(grad, comm_spec, async_op=True)
+                                # with torch.cuda.stream(stream):
+                                _all_reduce(grad, comm_spec, async_op=False)
 
                             param.register_hook(hook_fn)
 
@@ -449,8 +449,8 @@ def _module_params_sharding(gm: torch.fx.GraphModule, device_mesh: DeviceMesh):
                     def wrapper(param, comm_spec, stream):
 
                         def hook_fn(grad):
-                            with torch.cuda.stream(stream):
-                                _all_reduce(grad, comm_spec, async_op=True)
+                            # with torch.cuda.stream(stream):
+                            _all_reduce(grad, comm_spec, async_op=False)
 
                         param.register_hook(hook_fn)
 

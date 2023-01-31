@@ -16,7 +16,7 @@ from colossalai.device.device_mesh import DeviceMesh
 from colossalai.initialize import launch_from_torch
 from colossalai.logging import disable_existing_loggers, get_dist_logger
 
-BATCH_SIZE = 64
+BATCH_SIZE = 32
 SEQ_LENGTH = 1024
 HIDDEN_DIM = 4096
 NUM_HEADS = 16
@@ -67,7 +67,7 @@ def main():
     }
 
     device_mesh = DeviceMesh(physical_mesh_id=torch.arange(8),
-                             mesh_shape=[2, 4],
+                             mesh_shape=[4, 2],
                              mesh_alpha=[1, 1],
                              mesh_beta=[10, 1],
                              init_process_group=True)
@@ -76,7 +76,7 @@ def main():
         meta_input_sample,
         device_mesh=device_mesh,
         load_solver_solution=True,
-        solution_path='./saved_solution/megatron_1d/bs8_hidd4096_megatron_1d_8_devices_12layer_comment_RS.pt',
+        solution_path='./saved_solution/new_dp_tp/bs16_hidd4096_dp_tp_16_devices_12layer.pt',
         return_solution=True)
 
     # print solution on rank 0
