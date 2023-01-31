@@ -207,7 +207,8 @@ class GPT2Model(GPT2PreTrainedModel):
         output_shape = input_shape + (hidden_states.size(-1),)
 
         for i, (block, layer_past) in enumerate(zip(self.h, past_key_values)):
-            outputs = block(hidden_states, attention_mask=attention_mask, head_mask=head_mask[i])
+            outputs = torch.utils.checkpoint.checkpoint(block, hidden_states, attention_mask, head_mask[i])
+            # outputs = block(hidden_states, attention_mask=attention_mask, head_mask=head_mask[i])
             hidden_states = outputs
 
         hidden_states = self.ln_f(hidden_states)

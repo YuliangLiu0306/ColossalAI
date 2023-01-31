@@ -16,7 +16,7 @@ from colossalai.device.device_mesh import DeviceMesh
 from colossalai.initialize import launch_from_torch
 from colossalai.logging import disable_existing_loggers, get_dist_logger
 
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 SEQ_LENGTH = 1024
 HIDDEN_DIM = 4096
 NUM_HEADS = 16
@@ -40,7 +40,7 @@ def get_mem_info(prefix=''):
 
 def get_tflops(model_numel, batch_size, seq_len, step_time):
     # Tflops_per_GPU = global_batch * global_numel * seq_len * 8 / #gpu
-    return model_numel * batch_size * seq_len * 8 / 1e12 / (step_time + 1e-12) / 8
+    return model_numel * batch_size * seq_len * 8 / 1e12 / (step_time + 1e-12) / 4
 
 
 # Randomly Generated Data
@@ -66,8 +66,8 @@ def main():
         'attention_mask': torch.zeros((BATCH_SIZE, SEQ_LENGTH), dtype=torch.int64).to('meta'),
     }
 
-    device_mesh = DeviceMesh(physical_mesh_id=torch.arange(8),
-                             mesh_shape=[4, 2],
+    device_mesh = DeviceMesh(physical_mesh_id=torch.arange(4),
+                             mesh_shape=[2, 2],
                              mesh_alpha=[1, 1],
                              mesh_beta=[10, 1],
                              init_process_group=True)
