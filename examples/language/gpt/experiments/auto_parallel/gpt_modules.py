@@ -135,11 +135,12 @@ class GPT2Block(nn.Module):
     ) -> Union[Tuple[torch.Tensor], Optional[Tuple[torch.Tensor, Tuple[torch.FloatTensor, ...]]]]:
         residual = hidden_states
         hidden_states = self.ln_1(hidden_states)
-        attn_outputs = self.attn(
-            hidden_states,
-            attention_mask=attention_mask,
-            head_mask=head_mask,
-        )
+        attn_outputs = torch.utils.checkpoint.checkpoint(self.attn, hidden_states, attention_mask, head_mask)
+        # attn_outputs = self.attn(
+        #     hidden_states,
+        #     attention_mask=attention_mask,
+        #     head_mask=head_mask,
+        # )
         # residual connection
         hidden_states = attn_outputs + residual
         residual = hidden_states
@@ -207,8 +208,8 @@ class GPT2Model(GPT2PreTrainedModel):
         output_shape = input_shape + (hidden_states.size(-1),)
 
         for i, (block, layer_past) in enumerate(zip(self.h, past_key_values)):
-            outputs = torch.utils.checkpoint.checkpoint(block, hidden_states, attention_mask, head_mask[i])
-            # outputs = block(hidden_states, attention_mask=attention_mask, head_mask=head_mask[i])
+            # outputs = torch.utils.checkpoint.checkpoint(block, hidden_states, attention_mask, head_mask[i])
+            outputs = block(hidden_states, attention_mask=attention_mask, head_mask=head_mask[i])
             hidden_states = outputs
 
         hidden_states = self.ln_f(hidden_states)
