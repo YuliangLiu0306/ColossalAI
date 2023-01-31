@@ -74,7 +74,12 @@ def _solution_annotatation(gm: torch.fx.GraphModule,
     for node_index, (node, strategy_index) in enumerate(zip(nodes, solution)):
         strategies_vector = node.strategies_vector
         # stick the solution strategy to the corresponding node
-        setattr(node, 'best_strategy', strategies_vector[strategy_index])
+        try:
+            setattr(node, 'best_strategy', strategies_vector[strategy_index])
+        except:
+            print(node)
+            print(strategy_index)
+            assert False
         setattr(node, 'sharding_spec', strategies_vector[strategy_index].get_sharding_spec_by_name(str(node)))
         origin_node_sharding_spec_dict[node_index] = strategies_vector[strategy_index].get_sharding_spec_by_name(
             str(node))

@@ -20,7 +20,7 @@ BATCH_SIZE = 16
 SEQ_LENGTH = 1024
 HIDDEN_DIM = 4096
 NUM_HEADS = 16
-NUM_LAYERS = 4
+NUM_LAYERS = 12
 VOCAB_SIZE = 50257
 NUM_STEPS = 10
 FP16 = True
@@ -66,7 +66,17 @@ def main():
         'attention_mask': torch.zeros((BATCH_SIZE, SEQ_LENGTH), dtype=torch.int64).to('meta'),
     }
 
-    gm, solution = autoparallelize(model, meta_input_sample, return_solution=True)
+    device_mesh = DeviceMesh(physical_mesh_id=torch.arange(8),
+                             mesh_shape=[4, 2],
+                             mesh_alpha=[1, 1],
+                             mesh_beta=[10, 1],
+                             init_process_group=True)
+    gm, solution = initialize_model(model,
+                                    meta_input_sample,
+                                    device_mesh=device_mesh,
+                                    load_solver_solution=True,
+                                    solution_path='./saved_solution/2d_tp/bs16_hidd4096_2d_tp_16_devices_12layer.pt',
+                                    return_solution=True)
 
     # print solution on rank 0
     if gpc.get_global_rank() == 0:
